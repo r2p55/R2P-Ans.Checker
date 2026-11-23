@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SSC Smart OMR & Answer Evaluator</title>
+  <!-- Google Fonts for Clean Bengali & English Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tesseract.js for Browser-based OCR -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <style>
+    :root {
+      --primary: #dc2626;
+      --primary-dark: #991b1b;
+      --primary-light: #fef2f2;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #16a34a;
+      --success-bg: #f0fdf4;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      overscroll-behavior-y: contain;
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Hind Siliguri', 'Plus Jakarta Sans', sans-serif;
+      line-height: 1.5;
+    }
+
+    /* Header */
+    .app-header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #fff;
+      padding: 18px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+      border-bottom: 3px solid var(--primary);
+    }
+
+    .header-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-badge {
+      width: 42px;
+      height: 42px;
+      background: var(--primary);
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.45);
+    }
+
+    .brand-text h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      line-height: 1.2;
+    }
+
+    .brand-text p {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-outline {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .btn-light {
+      background: #f1f5f9;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 0 16px 60px;
+    }
+
+    /* Exam Meta Card */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-main);
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .input-group input, .input-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      background: #f8fafc;
+      color: var(--text-main);
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus, .input-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: #fff;
+    }
+
+    /* Dual Scanner Grid */
+    .scanner-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .scanner-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .upload-box {
+      border: 2px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      background: #f8fafc;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .upload-box.has-image {
+      border-style: solid;
+      border-color: var(--primary);
+      background: #fff;
+    }
+
+    .upload-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .preview-wrap {
+      margin-top: 12px;
+      position: relative;
+      display: none;
+    }
+
+    .preview-wrap img {
+      width: 100%;
+      max-height: 220px;
+      object-fit: contain;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0f172a;
+    }
+
+    .ocr-status {
+      font-size: 12px;
+      margin-top: 8px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      display: none;
+      font-weight: 600;
+    }
+
+    .parsed-box {
+      margin-top: 12px;
+      text-align: left;
+    }
+
+    /* Evaluate Action Bar */
+    .eval-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .eval-bar .btn-primary {
+      padding: 13px 28px;
+      font-size: 15px;
+      border-radius: 12px;
+    }
+
+    /* Stats Dashboard */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    @media (max-width: 600px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stat-card {
+      background: var(--surface);
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-val {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    /* Result Table */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-align: left;
+      padding: 11px 14px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tr.row-correct {
+      background: var(--success-bg);
+    }
+
+    tr.row-wrong {
+      background: var(--danger-bg);
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge-correct {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .badge-wrong {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .inline-edit {
+      width: 65px;
+      padding: 4px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-weight: 700;
+      text-align: center;
+      font-family: inherit;
+    }
+
+    /* Print Styles */
+    .print-only-header {
+      display: none;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        color: #000;
+      }
+      .app-header, .no-print, .upload-actions, .eval-bar {
+        display: none !important;
+      }
+      .container {
+        margin: 0;
+        padding: 0;
+        max-width: 100%;
+      }
+      .card, .stat-card {
+        box-shadow: none;
+        border: 1px solid #cbd5e1;
+        break-inside: avoid;
+      }
+      .print-only-header {
+        display: block;
+        text-align: center;
+        border-bottom: 2px solid #0f172a;
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+      }
+      .inline-edit {
+        border: none;
+        background: transparent;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top App Bar -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-badge">SSC</div>
+        <div class="brand-text">
+          <h1>Smart Answer Evaluator</h1>
+          <p>Auto Image Scan & Test Paper Checker</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-outline" onclick="loadDemoData()">ডেমো টেস্ট</button>
+        <button class="btn btn-primary" onclick="window.print()">🖨️ প্রিন্ট / PDF</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Print Header (Visible only when printing) -->
+    <div class="print-only-header">
+      <h2>SSC Exam Self-Evaluation Report</h2>
+      <p id="printMetaText">Subject: General | Date: Today</p>
+    </div>
+
+    <!-- Exam Info Card -->
+    <section class="card">
+      <div class="card-title">
+        <span>📋 পরীক্ষার তথ্য (Auto-Saved)</span>
+        <span class="tag">Offline Storage Active</span>
+      </div>
+      <div class="meta-grid">
+        <div class="input-group">
+          <label>শিক্ষার্থীর নাম</label>
+          <input type="text" id="studentName" placeholder="তোমার নাম লেখো..." oninput="saveAppState()">
+        </div>
+        <div class="input-group">
+          <label>বিষয় ও অধ্যায়</label>
+          <input type="text" id="subjectName" placeholder="যেমন: পদার্থবিজ্ঞান - ২য় অধ্যায়" oninput="saveAppState()">
+        </div>
+        <div class="input-group">
+          <label>টেস্ট পেপার / বোর্ড সেট</label>
+          <input type="text" id="boardSet" placeholder="যেমন: ঢাকা বোর্ড ২০২৫ (সেট-ক)" oninput="saveAppState()">
+        </div>
+      </div>
+    </section>
+
+    <!-- Dual Image Upload & Scan Section -->
+    <section class="scanner-grid no-print">
+      <!-- Box 1: Official Answer Key -->
+      <div class="card">
+        <div class="card-title">
+          <span>১. গাইডের উত্তরমালা (Answer Key)</span>
+          <span class="tag">Step 1</span>
+        </div>
+        <div class="upload-box" id="keyUploadBox">
+          <p style="font-size: 13px; color: var(--text-muted);">গাইড বইয়ের উত্তরমালার ছবি তোলো অথবা গ্যালারি থেকে দাও</p>
+          <div class="upload-actions">
+            <label class="btn btn-primary">
+              📷 ক্যামেরা
+              <input type="file" accept="image/*" capture="environment" hidden onchange="handleImageUpload(event, 'key')">
+            </label>
+            <label class="btn btn-light">
+              🖼️ গ্যালারি
+              <input type="file" accept="image/*" hidden onchange="handleImageUpload(event, 'key')">
+            </label>
+          </div>
+          <div class="preview-wrap" id="keyPreviewWrap">
+            <img id="keyPreviewImg" alt="Answer Key Preview">
+          </div>
+          <div class="ocr-status" id="keyOcrStatus"></div>
+        </div>
+
+        <div class="parsed-box input-group">
+          <label>শনাক্তকৃত সঠিক উত্তরমালা (প্রয়োজনে এডিট করো):</label>
+          <textarea id="keyText" rows="4" placeholder="উদাহরণ: 1. ক, 2. গ, 3. খ, 4. ঘ, 5. ক" oninput="saveAppState(); evaluateAnswers();"></textarea>
+        </div>
+      </div>
+
+      <!-- Box 2: Student Solved Sheet -->
+      <div class="card">
+        <div class="card-title">
+          <span>২. তোমার সলভ করা খাতা (My Sheet)</span>
+          <span class="tag">Step 2</span>
+        </div>
+        <div class="upload-box" id="userUploadBox">
+          <p style="font-size: 13px; color: var(--text-muted);">তোমার খাতায় লেখা উত্তরের ছবি তোলো অথবা গ্যালারি থেকে দাও</p>
+          <div class="upload-actions">
+            <label class="btn btn-primary">
+              📷 ক্যামেরা
+              <input type="file" accept="image/*" capture="environment" hidden onchange="handleImageUpload(event, 'user')">
+            </label>
+            <label class="btn btn-light">
+              🖼️ গ্যালারি
+              <input type="file" accept="image/*" hidden onchange="handleImageUpload(event, 'user')">
+            </label>
+          </div>
+          <div class="preview-wrap" id="userPreviewWrap">
+            <img id="userPreviewImg" alt="Student Sheet Preview">
+          </div>
+          <div class="ocr-status" id="userOcrStatus"></div>
+        </div>
+
+        <div class="parsed-box input-group">
+          <label>তোমার দেওয়া উত্তরসমূহ (প্রয়োজনে এডিট করো):</label>
+          <textarea id="userText" rows="4" placeholder="উদাহরণ: 1. ক, 2. খ, 3. খ, 4. ঘ, 5. গ" oninput="saveAppState(); evaluateAnswers();"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- Action Buttons -->
+    <div class="eval-bar no-print">
+      <button class="btn btn-primary" onclick="evaluateAnswers()">⚡ উত্তর যাচাই করো (Check Result)</button>
+      <button class="btn btn-light" onclick="clearAllData()">🗑️ সব ডেটা ক্লিয়ার করো</button>
+    </div>
+
+    <!-- Score Summary Cards -->
+    <section class="stats-grid" id="statsSection">
+      <div class="stat-card">
+        <div class="stat-val" id="statTotal">0</div>
+        <div class="stat-label">মোট প্রশ্ন</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color: var(--success);" id="statCorrect">0</div>
+        <div class="stat-label">সঠিক উত্তর</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color: var(--danger);" id="statWrong">0</div>
+        <div class="stat-label">ভুল উত্তর</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color: #2563eb;" id="statAccuracy">0%</div>
+        <div class="stat-label">সঠিকতার হার</div>
+      </div>
+    </section>
+
+    <!-- Detailed Comparison Table -->
+    <section class="card">
+      <div class="card-title">
+        <span>📊 বিস্তারিত ফলাফল ও ভুল সংশোধন শিট</span>
+        <button class="btn btn-success no-print" onclick="window.print()" style="padding: 6px 12px; font-size: 12px;">📄 রিপোর্ট প্রিন্ট</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>প্রশ্ন নং</th>
+              <th>তোমার উত্তর</th>
+              <th>সঠিক উত্তর (গাইড)</th>
+              <th>ফলাফল</th>
+            </tr>
+          </thead>
+          <tbody id="resultTableBody">
+            <tr>
+              <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                উপরে উত্তরমালা ও তোমার খাতার ছবি দাও অথবা "ডেমো টেস্ট" বাটনে ক্লিক করে দেখো।
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // IndexedDB Setup for Storing Images Offline Across Refreshes
+    const DB_NAME = 'SSCEvaluatorDB';
+    const STORE_NAME = 'images';
+    let db;
+
+    function initDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onupgradeneeded = (e) => {
+          db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME);
+          }
+        };
+        request.onsuccess = (e) => {
+          db = e.target.result;
+          resolve(db);
+        };
+        request.onerror = (e) => reject(e);
+      });
+    }
+
+    function saveImageToDB(key, dataUrl) {
+      if (!db) return;
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).put(dataUrl, key);
+    }
+
+    function getImageFromDB(key) {
+      return new Promise((resolve) => {
+        if (!db) return resolve(null);
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const req = tx.objectStore(STORE_NAME).get(key);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => resolve(null);
+      });
+    }
+
+    function clearImagesDB() {
+      if (!db) return;
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).clear();
+    }
+
+    // Handle Image Upload + OCR
+    async function handleImageUpload(event, type) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const dataUrl = e.target.result;
+        displayPreview(type, dataUrl);
+        saveImageToDB(type + 'Image', dataUrl);
+        runOCR(dataUrl, type);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function displayPreview(type, dataUrl) {
+      const img = document.getElementById(type + 'PreviewImg');
+      const wrap = document.getElementById(type + 'PreviewWrap');
+      const box = document.getElementById(type + 'UploadBox');
+      img.src = dataUrl;
+      wrap.style.display = 'block';
+      box.classList.add('has-image');
+    }
+
+    async function runOCR(dataUrl, type) {
+      const statusEl = document.getElementById(type + 'OcrStatus');
+      const textArea = document.getElementById(type + 'Text');
+      statusEl.style.display = 'block';
+      statusEl.textContent = '⏳ ছবি থেকে উত্তর স্ক্যান করা হচ্ছে... অপেক্ষা করো';
+
+      try {
+        const result = await Tesseract.recognize(dataUrl, 'ben+eng', {
+          logger: m => {
+            if (m.status === 'recognizing text') {
+              statusEl.textContent = `🔍 স্ক্যানিং চলছে: ${Math.round(m.progress * 100)}%`;
+            }
+          }
+        });
+
+        const rawText = result.data.text;
+        const cleaned = extractPairsAsText(rawText);
+        if (cleaned) {
+          textArea.value = cleaned;
+          statusEl.textContent = '✅ স্ক্যান সম্পন্ন! নিচে উত্তরগুলো চেক করে নিতে পারো।';
+        } else {
+          textArea.value = rawText.trim();
+          statusEl.textContent = '⚠️ লেখা অস্পষ্ট হতে পারে, নিচের বক্সে নম্বর ও উত্তর ঠিক করে নাও।';
+        }
+        saveAppState();
+        evaluateAnswers();
+      } catch (err) {
+        statusEl.textContent = '❌ স্ক্যান করতে সমস্যা হয়েছে, ম্যানুয়ালি উত্তর লেখো।';
+      }
+    }
+
+    // Convert Bengali digits to English digits
+    function normalizeDigits(str) {
+      const bn = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+      return str.replace(/[০-৯]/g, d => bn.indexOf(d));
+    }
+
+    // Parse "1. ক, 2. গ" or "1) A 2) B" formats
+    function parseAnswers(text) {
+      const normalized = normalizeDigits(text);
+      const map = {};
+      // Match patterns like 1. ক or 1) A or 1- খ or 1: গ
+      const regex = /(\d+)\s*[\.\)\-\:\s]\s*([কখগঘABCDabcd])/g;
+      let match;
+      while ((match = regex.exec(normalized)) !== null) {
+        const qNum = parseInt(match[1], 10);
+        const ans = match[2].toUpperCase();
+        map[qNum] = ans;
+      }
+      return map;
+    }
+
+    function extractPairsAsText(rawText) {
+      const parsed = parseAnswers(rawText);
+      const keys = Object.keys(parsed).sort((a, b) => a - b);
+      if (keys.length === 0) return '';
+      return keys.map(k => `${k}. ${parsed[k]}`).join(', ');
+    }
+
+    // Main Evaluation Engine
+    function evaluateAnswers() {
+      const keyMap = parseAnswers(document.getElementById('keyText').value);
+      const userMap = parseAnswers(document.getElementById('userText').value);
+
+      const allQuestions = Array.from(new Set([...Object.keys(keyMap), ...Object.keys(userMap)]))
+        .map(Number)
+        .sort((a, b) => a - b);
+
+      const tbody = document.getElementById('resultTableBody');
+      if (allQuestions.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">কোনো প্রশ্ন পাওয়া যায়নি।</td></tr>`;
+        updateStats(0, 0, 0);
+        return;
+      }
+
+      let correctCount = 0;
+      let wrongCount = 0;
+      let rowsHtml = '';
+
+      allQuestions.forEach(q => {
+        const correctAns = keyMap[q] || '-';
+        const userAns = userMap[q] || '-';
+        const isCorrect = (correctAns !== '-' && userAns === correctAns);
+
+        if (isCorrect) correctCount++;
+        else wrongCount++;
+
+        rowsHtml += `
+          <tr class="${isCorrect ? 'row-correct' : 'row-wrong'}">
+            <td><strong>প্রশ্ন ${q}</strong></td>
+            <td>
+              <input class="inline-edit" value="${userAns}" onchange="quickUpdateAnswer('user', ${q}, this.value)">
+            </td>
+            <td>
+              <input class="inline-edit" value="${correctAns}" onchange="quickUpdateAnswer('key', ${q}, this.value)">
+            </td>
+            <td>
+              ${isCorrect
+                ? '<span class="badge-status badge-correct">✔ সঠিক</span>'
+                : `<span class="badge-status badge-wrong">✘ ভুল (সঠিক: ${correctAns})</span>`
+              }
+            </td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = rowsHtml;
+      updateStats(allQuestions.length, correctCount, wrongCount);
+      updatePrintHeader();
+    }
+
+    function quickUpdateAnswer(target, qNum, newVal) {
+      const el = document.getElementById(target + 'Text');
+      const map = parseAnswers(el.value);
+      if (newVal.trim() === '' || newVal.trim() === '-') {
+        delete map[qNum];
+      } else {
+        map[qNum] = newVal.trim().toUpperCase();
+      }
+      const keys = Object.keys(map).sort((a, b) => a - b);
+      el.value = keys.map(k => `${k}. ${map[k]}`).join(', ');
+      saveAppState();
+      evaluateAnswers();
+    }
+
+    function updateStats(total, correct, wrong) {
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statCorrect').textContent = correct;
+      document.getElementById('statWrong').textContent = wrong;
+      const acc = total > 0 ? Math.round((correct / total) * 100) : 0;
+      document.getElementById('statAccuracy').textContent = acc + '%';
+    }
+
+    function updatePrintHeader() {
+      const name = document.getElementById('studentName').value || 'Student';
+      const sub = document.getElementById('subjectName').value || 'SSC Test Paper';
+      const set = document.getElementById('boardSet').value || 'General Set';
+      const date = new Date().toLocaleDateString('bn-BD');
+      document.getElementById('printMetaText').textContent = `শিক্ষার্থী: ${name} | বিষয়: ${sub} | সেট: ${set} | তারিখ: ${date}`;
+    }
+
+    // Save & Restore Text State in LocalStorage
+    function saveAppState() {
+      const state = {
+        studentName: document.getElementById('studentName').value,
+        subjectName: document.getElementById('subjectName').value,
+        boardSet: document.getElementById('boardSet').value,
+        keyText: document.getElementById('keyText').value,
+        userText: document.getElementById('userText').value
+      };
+      localStorage.setItem('ssc_evaluator_state', JSON.stringify(state));
+    }
+
+    async function restoreAppState() {
+      const saved = localStorage.getItem('ssc_evaluator_state');
+      if (saved) {
+        const state = JSON.parse(saved);
+        document.getElementById('studentName').value = state.studentName || '';
+        document.getElementById('subjectName').value = state.subjectName || '';
+        document.getElementById('boardSet').value = state.boardSet || '';
+        document.getElementById('keyText').value = state.keyText || '';
+        document.getElementById('userText').value = state.userText || '';
+      }
+
+      const keyImg = await getImageFromDB('keyImage');
+      if (keyImg) displayPreview('key', keyImg);
+
+      const userImg = await getImageFromDB('userImage');
+      if (userImg) displayPreview('user', userImg);
+
+      evaluateAnswers();
+    }
+
+    function loadDemoData() {
+      document.getElementById('studentName').value = 'রেজওয়ান রহমান পূর্ণ';
+      document.getElementById('subjectName').value = 'পদার্থবিজ্ঞান (১ম পত্র)';
+      document.getElementById('boardSet').value = 'ঢাকা বোর্ড - সেট ক';
+      document.getElementById('keyText').value = '1. ক, 2. গ, 3. খ, 4. ঘ, 5. ক, 6. খ, 7. গ, 8. ক, 9. ঘ, 10. খ';
+      document.getElementById('userText').value = '1. ক, 2. খ, 3. খ, 4. ঘ, 5. গ, 6. খ, 7. গ, 8. ঘ, 9. ঘ, 10. খ';
+      saveAppState();
+      evaluateAnswers();
+    }
+
+    function clearAllData() {
+      if (!confirm('সব ছবি ও উত্তর মুছে ফেলতে চাও?')) return;
+      localStorage.removeItem('ssc_evaluator_state');
+      clearImagesDB();
+      location.reload();
+    }
+
+    // Initialize App
+    window.addEventListener('DOMContentLoaded', async () => {
+      await initDB();
+      await restoreAppState();
+    });
+  </script>
+</body>
+</html>
