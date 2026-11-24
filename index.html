@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>R2P - Smart AI OMR Scanner</title>
+  <title>R2P - Smart Answer Evaluator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -40,7 +40,6 @@
       line-height: 1.5;
     }
 
-    /* Header */
     .app-header {
       background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
       color: #fff;
@@ -144,7 +143,6 @@
       box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
     }
 
-    /* Container */
     .container {
       max-width: 1000px;
       margin: 20px auto;
@@ -179,34 +177,6 @@
       font-weight: 700;
     }
 
-    .tag-ai {
-      background: #eff6ff;
-      color: #1d4ed8;
-    }
-
-    /* API Setup Banner */
-    .api-card {
-      background: linear-gradient(to right, #fff, #fef2f2);
-      border: 1px solid #fecaca;
-    }
-
-    .api-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .api-row input {
-      flex: 1;
-      min-width: 220px;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 13px;
-    }
-
     .meta-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -230,7 +200,6 @@
       font-size: 14px;
       background: #f8fafc;
       color: var(--text-main);
-      transition: border-color 0.2s;
     }
 
     .input-group input:focus, .input-group textarea:focus {
@@ -239,7 +208,6 @@
       background: #fff;
     }
 
-    /* Dual Scanner Grid */
     .scanner-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -255,10 +223,9 @@
     .upload-box {
       border: 2px dashed #cbd5e1;
       border-radius: 14px;
-      padding: 16px;
+      padding: 14px;
       text-align: center;
       background: #f8fafc;
-      transition: all 0.2s;
     }
 
     .upload-box.has-image {
@@ -282,40 +249,77 @@
 
     .preview-wrap img {
       width: 100%;
-      max-height: 220px;
+      max-height: 240px;
       object-fit: contain;
       border-radius: 10px;
       border: 1px solid var(--border);
       background: #0f172a;
+      transition: transform 0.2s ease;
     }
 
-    .ocr-status {
-      font-size: 13px;
+    /* Quick Keypad */
+    .keypad-bar {
       margin-top: 10px;
-      padding: 8px 12px;
+      padding: 10px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .keypad-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .q-badge {
+      background: #0f172a;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .opt-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .opt-btn {
+      padding: 10px 6px;
       border-radius: 10px;
-      background: #eff6ff;
-      color: #1d4ed8;
-      display: none;
-      font-weight: 600;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--text-main);
     }
 
-    .ocr-status.error {
-      background: #fef2f2;
-      color: #b91c1c;
+    .opt-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
     }
 
-    .ocr-status.success {
-      background: #f0fdf4;
-      color: #15803d;
+    .keypad-sub {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
     }
 
-    .parsed-box {
-      margin-top: 12px;
-      text-align: left;
+    .keypad-sub button {
+      flex: 1;
+      padding: 6px 8px;
+      font-size: 12px;
     }
 
-    /* Evaluate Action Bar */
     .eval-bar {
       display: flex;
       gap: 10px;
@@ -330,7 +334,6 @@
       border-radius: 12px;
     }
 
-    /* Stats Dashboard */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -367,7 +370,6 @@
       margin-top: 4px;
     }
 
-    /* Result Table */
     .table-wrap {
       overflow-x: auto;
     }
@@ -431,14 +433,13 @@
       font-family: inherit;
     }
 
-    /* Print Styles */
     .print-only-header {
       display: none;
     }
 
     @media print {
       body { background: #fff; color: #000; }
-      .app-header, .no-print, .upload-actions, .eval-bar { display: none !important; }
+      .app-header, .no-print, .upload-actions, .eval-bar, .keypad-bar { display: none !important; }
       .container { margin: 0; padding: 0; max-width: 100%; }
       .card, .stat-card { box-shadow: none; border: 1px solid #cbd5e1; break-inside: avoid; }
       .print-only-header {
@@ -454,14 +455,13 @@
 </head>
 <body>
 
-  <!-- Top App Bar -->
   <header class="app-header">
     <div class="header-inner">
       <div class="brand">
         <div class="brand-badge">R2P</div>
         <div class="brand-text">
-          <h1>Smart AI Answer Evaluator</h1>
-          <p>Vision AI Test Paper & OMR Checker</p>
+          <h1>Smart Answer Evaluator</h1>
+          <p>Fast Sheet Matcher & Result Generator</p>
         </div>
       </div>
       <div class="header-actions">
@@ -472,29 +472,12 @@
   </header>
 
   <main class="container">
-    <!-- Print Header -->
     <div class="print-only-header">
-      <h2>SSC Smart OMR Evaluation Report</h2>
+      <h2>SSC Smart Evaluation Report</h2>
       <p id="printMetaText">Subject: General | Date: Today</p>
     </div>
 
-    <!-- Gemini Vision AI Key Setup -->
-    <section class="card api-card no-print">
-      <div class="card-title">
-        <span>⚡ Vision AI Scanner সেটআপ (ফাস্ট ও নির্ভুল স্ক্যানের জন্য)</span>
-        <span class="tag tag-ai" id="apiStatusBadge">Key Required</span>
-      </div>
-      <div class="api-row">
-        <input type="password" id="geminiApiKey" placeholder="এখানে তোমার Gemini API Key পেস্ট করো (AIzaSy...)" oninput="saveApiKey()">
-        <button class="btn btn-primary" onclick="saveApiKey(true)">সেভ করো</button>
-        <a href="https://aistudio.google.com/apikey" target="_blank" class="btn btn-light" style="text-decoration:none;">🔑 ফ্রি Key নাও</a>
-      </div>
-      <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
-        * একবার Key সেভ করলে তোমার ফোনে স্থায়ীভাবে সেভ থাকবে। এটি ছাড়া হাতের লেখা বাংলা ও গাইডের ছবি নির্ভুলভাবে পড়া সম্ভব নয়।
-      </p>
-    </section>
-
-    <!-- Exam Info Card -->
+    <!-- Exam Info -->
     <section class="card">
       <div class="card-title">
         <span>📋 পরীক্ষার তথ্য (Auto-Saved)</span>
@@ -516,16 +499,16 @@
       </div>
     </section>
 
-    <!-- Dual Image Upload & AI Scan Section -->
+    <!-- Dual Image Sheet & Quick Input -->
     <section class="scanner-grid no-print">
-      <!-- Box 1: Official Answer Key -->
+      <!-- Answer Key Side -->
       <div class="card">
         <div class="card-title">
           <span>১. গাইডের উত্তরমালা (Answer Key)</span>
           <span class="tag">Step 1</span>
         </div>
         <div class="upload-box" id="keyUploadBox">
-          <p style="font-size: 13px; color: var(--text-muted);">গাইড বইয়ের উত্তরমালার ছবি তোলো অথবা গ্যালারি থেকে দাও</p>
+          <p style="font-size: 13px; color: var(--text-muted);">গাইডের উত্তরমালার ছবি তোলো বা গ্যালারি থেকে নাও</p>
           <div class="upload-actions">
             <label class="btn btn-primary">
               📷 ক্যামেরা
@@ -535,28 +518,44 @@
               🖼️ গ্যালারি
               <input type="file" accept="image/*" hidden onchange="handleImageUpload(event, 'key')">
             </label>
-            <button class="btn btn-light" id="keyRescanBtn" style="display:none;" onclick="rescanSavedImage('key')">🔄 রি-স্ক্যান</button>
+            <button class="btn btn-light" onclick="rotateImage('key')">↻ ঘোরানো</button>
           </div>
           <div class="preview-wrap" id="keyPreviewWrap">
             <img id="keyPreviewImg" alt="Answer Key Preview">
           </div>
-          <div class="ocr-status" id="keyOcrStatus"></div>
         </div>
 
-        <div class="parsed-box input-group">
-          <label>AI শনাক্তকৃত সঠিক উত্তরমালা (প্রয়োজনে এডিট করো):</label>
-          <textarea id="keyText" rows="4" placeholder="উদাহরণ: 1. ক, 2. গ, 3. খ, 4. ঘ, 5. ক" oninput="saveAppState(); evaluateAnswers();"></textarea>
+        <div class="keypad-bar">
+          <div class="keypad-header">
+            <span>ফাস্ট কিপ্যাড (সঠিক উত্তর):</span>
+            <span class="q-badge" id="keyQBadge">প্রশ্ন #1</span>
+          </div>
+          <div class="opt-grid">
+            <button class="opt-btn" onclick="tapOption('key', 'ক')">ক</button>
+            <button class="opt-btn" onclick="tapOption('key', 'খ')">খ</button>
+            <button class="opt-btn" onclick="tapOption('key', 'গ')">গ</button>
+            <button class="opt-btn" onclick="tapOption('key', 'ঘ')">ঘ</button>
+          </div>
+          <div class="keypad-sub">
+            <button class="btn btn-light" onclick="undoLast('key')">↶ Undo</button>
+            <button class="btn btn-light" onclick="setNextQuestionPrompt('key')"># নম্বর সেট</button>
+          </div>
+        </div>
+
+        <div class="input-group" style="margin-top: 10px;">
+          <label>সঠিক উত্তরমালা তালিকা (সরাসরি টাইপ বা এডিটও করতে পারো):</label>
+          <textarea id="keyText" rows="3" placeholder="1. ক, 2. গ, 3. খ, 4. ঘ" oninput="saveAppState(); evaluateAnswers();"></textarea>
         </div>
       </div>
 
-      <!-- Box 2: Student Solved Sheet -->
+      <!-- Student Sheet Side -->
       <div class="card">
         <div class="card-title">
           <span>২. তোমার সলভ করা খাতা (My Sheet)</span>
           <span class="tag">Step 2</span>
         </div>
         <div class="upload-box" id="userUploadBox">
-          <p style="font-size: 13px; color: var(--text-muted);">তোমার খাতায় লেখা উত্তরের ছবি তোলো অথবা গ্যালারি থেকে দাও</p>
+          <p style="font-size: 13px; color: var(--text-muted);">তোমার খাতার ছবি তোলো বা গ্যালারি থেকে নাও</p>
           <div class="upload-actions">
             <label class="btn btn-primary">
               📷 ক্যামেরা
@@ -566,28 +565,42 @@
               🖼️ গ্যালারি
               <input type="file" accept="image/*" hidden onchange="handleImageUpload(event, 'user')">
             </label>
-            <button class="btn btn-light" id="userRescanBtn" style="display:none;" onclick="rescanSavedImage('user')">🔄 রি-স্ক্যান</button>
+            <button class="btn btn-light" onclick="rotateImage('user')">↻ ঘোরানো</button>
           </div>
           <div class="preview-wrap" id="userPreviewWrap">
             <img id="userPreviewImg" alt="Student Sheet Preview">
           </div>
-          <div class="ocr-status" id="userOcrStatus"></div>
         </div>
 
-        <div class="parsed-box input-group">
-          <label>AI শনাক্তকৃত তোমার উত্তরসমূহ (প্রয়োজনে এডিট করো):</label>
-          <textarea id="userText" rows="4" placeholder="উদাহরণ: 1. ক, 2. খ, 3. খ, 4. ঘ, 5. গ" oninput="saveAppState(); evaluateAnswers();"></textarea>
+        <div class="keypad-bar">
+          <div class="keypad-header">
+            <span>ফাস্ট কিপ্যাড (তোমার উত্তর):</span>
+            <span class="q-badge" id="userQBadge">প্রশ্ন #1</span>
+          </div>
+          <div class="opt-grid">
+            <button class="opt-btn" onclick="tapOption('user', 'ক')">ক</button>
+            <button class="opt-btn" onclick="tapOption('user', 'খ')">খ</button>
+            <button class="opt-btn" onclick="tapOption('user', 'গ')">গ</button>
+            <button class="opt-btn" onclick="tapOption('user', 'ঘ')">ঘ</button>
+          </div>
+          <div class="keypad-sub">
+            <button class="btn btn-light" onclick="undoLast('user')">↶ Undo</button>
+            <button class="btn btn-light" onclick="setNextQuestionPrompt('user')"># নম্বর সেট</button>
+          </div>
+        </div>
+
+        <div class="input-group" style="margin-top: 10px;">
+          <label>তোমার দেওয়া উত্তর তালিকা (সরাসরি টাইপ বা এডিটও করতে পারো):</label>
+          <textarea id="userText" rows="3" placeholder="1. খ, 2. গ, 3. খ, 4. ক" oninput="saveAppState(); evaluateAnswers();"></textarea>
         </div>
       </div>
     </section>
 
-    <!-- Action Buttons -->
     <div class="eval-bar no-print">
       <button class="btn btn-primary" onclick="evaluateAnswers()">⚡ উত্তর যাচাই করো (Check Result)</button>
       <button class="btn btn-light" onclick="clearAllData()">🗑️ সব ডেটা ক্লিয়ার করো</button>
     </div>
 
-    <!-- Score Summary Cards -->
     <section class="stats-grid">
       <div class="stat-card">
         <div class="stat-val" id="statTotal">0</div>
@@ -607,7 +620,6 @@
       </div>
     </section>
 
-    <!-- Detailed Comparison Table -->
     <section class="card">
       <div class="card-title">
         <span>📊 বিস্তারিত ফলাফল ও ভুল সংশোধন শিট</span>
@@ -626,7 +638,7 @@
           <tbody id="resultTableBody">
             <tr>
               <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 24px;">
-                উপরে API Key সেভ করে উত্তরমালা ও তোমার খাতার ছবি দাও অথবা "ডেমো টেস্ট" বাটনে ক্লিক করো।
+                ছবি দিয়ে ফাস্ট কিপ্যাড থেকে উত্তর বসাও অথবা "ডেমো টেস্ট" বাটনে ক্লিক করো।
               </td>
             </tr>
           </tbody>
@@ -636,11 +648,12 @@
   </main>
 
   <script>
-    const DB_NAME = 'SSCAIEvaluatorDB';
+    const DB_NAME = 'SSCEvaluatorOfflineDB';
     const STORE_NAME = 'images';
     let db;
+    const nextQ = { key: 1, user: 1 };
+    const rotations = { key: 0, user: 0 };
 
-    // IndexedDB Initialization
     function initDB() {
       return new Promise((resolve, reject) => {
         const request = indexedDB.open(DB_NAME, 1);
@@ -680,90 +693,26 @@
       tx.objectStore(STORE_NAME).clear();
     }
 
-    // API Key Storage
-    function saveApiKey(showAlert = false) {
-      const key = document.getElementById('geminiApiKey').value.trim();
-      localStorage.setItem('r2p_gemini_api_key', key);
-      updateApiBadge();
-      if (showAlert) {
-        alert(key ? 'API Key সফলভাবে সেভ হয়েছে! এখন ছবি আপলোড করো।' : 'API Key খালি রাখা হয়েছে।');
-      }
-    }
-
-    function updateApiBadge() {
-      const key = localStorage.getItem('r2p_gemini_api_key') || '';
-      const badge = document.getElementById('apiStatusBadge');
-      if (key.length > 10) {
-        badge.textContent = 'AI Ready ✔';
-        badge.style.background = '#dcfce7';
-        badge.style.color = '#15803d';
-      } else {
-        badge.textContent = 'Key Required';
-        badge.style.background = '#fef2f2';
-        badge.style.color = '#dc2626';
-      }
-    }
-
-    // Fast Client-Side Image Compressor (Shrinks 5MB phone pics to ~250KB clear JPEG)
-    function compressImage(file, maxDim = 1400, quality = 0.82) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const img = new Image();
-          img.onload = () => {
-            let width = img.width;
-            let height = img.height;
-
-            if (width > maxDim || height > maxDim) {
-              if (width > height) {
-                height = Math.round((height * maxDim) / width);
-                width = maxDim;
-              } else {
-                width = Math.round((width * maxDim) / height);
-                height = maxDim;
-              }
-            }
-
-            const canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL('image/jpeg', quality));
-          };
-          img.onerror = reject;
-          img.src = event.target.result;
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // Handle Image Upload
-    async function handleImageUpload(event, type) {
+    function handleImageUpload(event, type) {
       const file = event.target.files[0];
       if (!file) return;
-
-      const statusEl = document.getElementById(type + 'OcrStatus');
-      statusEl.className = 'ocr-status';
-      statusEl.style.display = 'block';
-      statusEl.textContent = '⚡ ছবি অপ্টিমাইজ করা হচ্ছে...';
-
-      try {
-        const compressedDataUrl = await compressImage(file);
-        displayPreview(type, compressedDataUrl);
-        saveImageToDB(type + 'Image', compressedDataUrl);
-        await scanWithGeminiAI(compressedDataUrl, type);
-      } catch (err) {
-        statusEl.className = 'ocr-status error';
-        statusEl.textContent = '❌ ছবি লোড করতে সমস্যা হয়েছে।';
-      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target.result;
+        rotations[type] = 0;
+        displayPreview(type, dataUrl);
+        saveImageToDB(type + 'Image', dataUrl);
+        saveAppState();
+      };
+      reader.readAsDataURL(file);
     }
 
-    async function rescanSavedImage(type) {
-      const savedImg = await getImageFromDB(type + 'Image');
-      if (savedImg) {
-        await scanWithGeminiAI(savedImg, type);
+    function rotateImage(type) {
+      rotations[type] = (rotations[type] + 90) % 360;
+      const img = document.getElementById(type + 'PreviewImg');
+      if (img && img.src) {
+        img.style.transform = `rotate(${rotations[type]}deg)`;
+        saveAppState();
       }
     }
 
@@ -771,86 +720,10 @@
       const img = document.getElementById(type + 'PreviewImg');
       const wrap = document.getElementById(type + 'PreviewWrap');
       const box = document.getElementById(type + 'UploadBox');
-      const rescanBtn = document.getElementById(type + 'RescanBtn');
       img.src = dataUrl;
+      img.style.transform = `rotate(${rotations[type]}deg)`;
       wrap.style.display = 'block';
-      rescanBtn.style.display = 'inline-flex';
       box.classList.add('has-image');
-    }
-
-    // Gemini Vision AI Scanner
-    async function scanWithGeminiAI(dataUrl, type) {
-      const statusEl = document.getElementById(type + 'OcrStatus');
-      const textArea = document.getElementById(type + 'Text');
-      const apiKey = (localStorage.getItem('r2p_gemini_api_key') || '').trim();
-
-      if (!apiKey) {
-        statusEl.className = 'ocr-status error';
-        statusEl.textContent = '⚠️ উপরে আগে Gemini API Key পেস্ট করে "সেভ করো" বাটনে চাপ দাও!';
-        return;
-      }
-
-      statusEl.className = 'ocr-status';
-      statusEl.style.display = 'block';
-      statusEl.textContent = '🤖 Vision AI ছবি স্ক্যান করছে (২-৪ সেকেন্ড)...';
-
-      const base64Data = dataUrl.split(',')[1];
-      const promptText = type === 'key'
-        ? `Extract the MCQ answer key from this guide book page (the image might be rotated or in a grid table). Return ONLY a valid JSON object mapping English question numbers to their Bengali (ক, খ, গ, ঘ) or English (A, B, C, D) option letters, e.g. {"1":"ক","2":"গ"}. Do not include explanations or markdown.`
-        : `Extract the student's handwritten MCQ answers from this notebook page (may have multiple columns or crossed-out corrections; pick the final intended answer). Return ONLY a valid JSON object mapping English question numbers to their Bengali (ক, খ, গ, ঘ) or English (A, B, C, D) option letters, e.g. {"1":"খ","2":"ক"}. Do not include explanations or markdown.`;
-
-      try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [
-                { text: promptText },
-                { inline_data: { mime_type: 'image/jpeg', data: base64Data } }
-              ]
-            }],
-            generationConfig: {
-              temperature: 0.1,
-              responseMimeType: 'application/json'
-            }
-          })
-        });
-
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error?.message || 'API Error');
-        }
-
-        const rawJsonText = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
-        const parsedObj = JSON.parse(rawJsonText);
-
-        const sortedKeys = Object.keys(parsedObj)
-          .map(k => parseInt(normalizeDigits(k), 10))
-          .filter(n => !isNaN(n))
-          .sort((a, b) => a - b);
-
-        if (sortedKeys.length === 0) {
-          statusEl.className = 'ocr-status error';
-          statusEl.textContent = '⚠️ ছবিতে কোনো প্রশ্ন নম্বর ও উত্তর পাওয়া যায়নি।';
-          return;
-        }
-
-        const formattedList = sortedKeys.map(num => {
-          const origKey = Object.keys(parsedObj).find(k => parseInt(normalizeDigits(k), 10) === num);
-          return `${num}. ${String(parsedObj[origKey]).trim()}`;
-        }).join(', ');
-
-        textArea.value = formattedList;
-        statusEl.className = 'ocr-status success';
-        statusEl.textContent = `✅ AI স্ক্যান সফল! মোট ${sortedKeys.length}টি উত্তর শনাক্ত হয়েছে।`;
-
-        saveAppState();
-        evaluateAnswers();
-      } catch (err) {
-        statusEl.className = 'ocr-status error';
-        statusEl.textContent = `❌ স্ক্যান ব্যর্থ হয়েছে: ${err.message}`;
-      }
     }
 
     function normalizeDigits(str) {
@@ -871,7 +744,51 @@
       return map;
     }
 
-    // Main Evaluation Engine
+    function formatMapToText(map) {
+      const keys = Object.keys(map).map(Number).sort((a, b) => a - b);
+      return keys.map(k => `${k}. ${map[k]}`).join(', ');
+    }
+
+    function updateQBadge(type) {
+      document.getElementById(type + 'QBadge').textContent = `প্রশ্ন #${nextQ[type]}`;
+    }
+
+    function tapOption(type, opt) {
+      const el = document.getElementById(type + 'Text');
+      const map = parseAnswers(el.value);
+      const qNum = nextQ[type];
+      map[qNum] = opt;
+      el.value = formatMapToText(map);
+      nextQ[type] = qNum + 1;
+      updateQBadge(type);
+      saveAppState();
+      evaluateAnswers();
+    }
+
+    function undoLast(type) {
+      const el = document.getElementById(type + 'Text');
+      const map = parseAnswers(el.value);
+      const keys = Object.keys(map).map(Number).sort((a, b) => a - b);
+      if (keys.length === 0) return;
+      const lastKey = keys[keys.length - 1];
+      delete map[lastKey];
+      el.value = formatMapToText(map);
+      nextQ[type] = lastKey;
+      updateQBadge(type);
+      saveAppState();
+      evaluateAnswers();
+    }
+
+    function setNextQuestionPrompt(type) {
+      const val = prompt('কোন প্রশ্ন নম্বর থেকে বসাতে চাও? (যেমন: 1, 14, 27)', nextQ[type]);
+      const num = parseInt(normalizeDigits(val || ''), 10);
+      if (!isNaN(num) && num > 0) {
+        nextQ[type] = num;
+        updateQBadge(type);
+        saveAppState();
+      }
+    }
+
     function evaluateAnswers() {
       const keyMap = parseAnswers(document.getElementById('keyText').value);
       const userMap = parseAnswers(document.getElementById('userText').value);
@@ -931,8 +848,7 @@
       } else {
         map[qNum] = newVal.trim().toUpperCase();
       }
-      const keys = Object.keys(map).sort((a, b) => a - b);
-      el.value = keys.map(k => `${k}. ${map[k]}`).join(', ');
+      el.value = formatMapToText(map);
       saveAppState();
       evaluateAnswers();
     }
@@ -959,17 +875,15 @@
         subjectName: document.getElementById('subjectName').value,
         boardSet: document.getElementById('boardSet').value,
         keyText: document.getElementById('keyText').value,
-        userText: document.getElementById('userText').value
+        userText: document.getElementById('userText').value,
+        nextQ,
+        rotations
       };
-      localStorage.setItem('r2p_evaluator_state', JSON.stringify(state));
+      localStorage.setItem('r2p_offline_evaluator_state', JSON.stringify(state));
     }
 
     async function restoreAppState() {
-      const savedKey = localStorage.getItem('r2p_gemini_api_key') || '';
-      document.getElementById('geminiApiKey').value = savedKey;
-      updateApiBadge();
-
-      const saved = localStorage.getItem('r2p_evaluator_state');
+      const saved = localStorage.getItem('r2p_offline_evaluator_state');
       if (saved) {
         const state = JSON.parse(saved);
         document.getElementById('studentName').value = state.studentName || '';
@@ -977,7 +891,18 @@
         document.getElementById('boardSet').value = state.boardSet || '';
         document.getElementById('keyText').value = state.keyText || '';
         document.getElementById('userText').value = state.userText || '';
+        if (state.nextQ) {
+          nextQ.key = state.nextQ.key || 1;
+          nextQ.user = state.nextQ.user || 1;
+        }
+        if (state.rotations) {
+          rotations.key = state.rotations.key || 0;
+          rotations.user = state.rotations.user || 0;
+        }
       }
+
+      updateQBadge('key');
+      updateQBadge('user');
 
       const keyImg = await getImageFromDB('keyImage');
       if (keyImg) displayPreview('key', keyImg);
@@ -993,14 +918,18 @@
       document.getElementById('subjectName').value = 'গণিত (বরিশাল বোর্ড ২০২৫)';
       document.getElementById('boardSet').value = 'MCQ সেট - ক';
       document.getElementById('keyText').value = '1. ক, 2. গ, 3. খ, 4. ঘ, 5. ক, 6. খ, 7. গ, 8. ক, 9. ঘ, 10. খ';
-      document.getElementById('userText').value = '1. খ, 2. ক, 3. খ, 4. ঘ, 5. ক, 6. ঘ, 7. ঘ, 8. ক, 9. গ, 10. ঘ';
+      document.getElementById('userText').value = '1. খ, 2. গ, 3. খ, 4. ঘ, 5. ক, 6. ঘ, 7. গ, 8. ক, 9. গ, 10. খ';
+      nextQ.key = 11;
+      nextQ.user = 11;
+      updateQBadge('key');
+      updateQBadge('user');
       saveAppState();
       evaluateAnswers();
     }
 
     function clearAllData() {
-      if (!confirm('সব ছবি ও উত্তর মুছে ফেলতে চাও? (তোমার API Key সেভ থাকবে)')) return;
-      localStorage.removeItem('r2p_evaluator_state');
+      if (!confirm('সব ছবি ও উত্তর মুছে ফেলতে চাও?')) return;
+      localStorage.removeItem('r2p_offline_evaluator_state');
       clearImagesDB();
       location.reload();
     }
@@ -1011,4 +940,4 @@
     });
   </script>
 </body>
-  </html>
+          </html>
