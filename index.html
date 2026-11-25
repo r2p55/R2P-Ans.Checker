@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>R2P - Smart Answer Evaluator</title>
+  <title>R2P - Real OMR Bubble Scanner</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -94,6 +94,7 @@
     .header-actions {
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -191,7 +192,7 @@
       margin-bottom: 4px;
     }
 
-    .input-group input, .input-group textarea {
+    .input-group input, .input-group textarea, .input-group select {
       width: 100%;
       padding: 10px 12px;
       border: 1px solid var(--border);
@@ -202,7 +203,7 @@
       color: var(--text-main);
     }
 
-    .input-group input:focus, .input-group textarea:focus {
+    .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
       outline: none;
       border-color: var(--primary);
       background: #fff;
@@ -254,10 +255,19 @@
       border-radius: 10px;
       border: 1px solid var(--border);
       background: #0f172a;
-      transition: transform 0.2s ease;
     }
 
-    /* Quick Keypad */
+    .scan-feedback {
+      font-size: 12px;
+      margin-top: 8px;
+      padding: 7px 10px;
+      border-radius: 8px;
+      background: #f0fdf4;
+      color: #15803d;
+      font-weight: 600;
+      display: none;
+    }
+
     .keypad-bar {
       margin-top: 10px;
       padding: 10px;
@@ -433,6 +443,60 @@
       font-family: inherit;
     }
 
+    /* Printable OMR Sheet Modal / Section */
+    .omr-sheet-box {
+      display: none;
+      background: #fff;
+      border: 2px solid #0f172a;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 18px;
+    }
+
+    .omr-corners-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .anchor-sq {
+      width: 18px;
+      height: 18px;
+      background: #000;
+    }
+
+    .omr-grid-rows {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+      gap: 10px 18px;
+      margin: 14px 0;
+    }
+
+    .omr-q-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px dashed #cbd5e1;
+      padding-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .omr-bubbles {
+      display: flex;
+      gap: 8px;
+    }
+
+    .omr-circle {
+      width: 22px;
+      height: 22px;
+      border: 1.5px solid #0f172a;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
     .print-only-header {
       display: none;
     }
@@ -458,13 +522,14 @@
   <header class="app-header">
     <div class="header-inner">
       <div class="brand">
-        <div class="brand-badge">R2P</div>
+        <div class="brand-badge">OMR</div>
         <div class="brand-text">
-          <h1>Smart Answer Evaluator</h1>
-          <p>Fast Sheet Matcher & Result Generator</p>
+          <h1>R2P Smart OMR Scanner</h1>
+          <p>Zero-API Instant Bubble & Result Engine</p>
         </div>
       </div>
       <div class="header-actions">
+        <button class="btn btn-outline" onclick="toggleOmrSheet()">📝 OMR শিট</button>
         <button class="btn btn-outline" onclick="loadDemoData()">ডেমো টেস্ট</button>
         <button class="btn btn-primary" onclick="window.print()">🖨️ প্রিন্ট / PDF</button>
       </div>
@@ -473,15 +538,47 @@
 
   <main class="container">
     <div class="print-only-header">
-      <h2>SSC Smart Evaluation Report</h2>
+      <h2>SSC Smart OMR Evaluation Report</h2>
       <p id="printMetaText">Subject: General | Date: Today</p>
     </div>
+
+    <!-- Printable OMR Sheet Generator -->
+    <section class="omr-sheet-box no-print" id="omrSheetSection">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div>
+          <h3 style="font-size:16px;">📄 প্রিন্টযোগ্য OMR উত্তরপত্র (Practice Sheet)</h3>
+          <p style="font-size:12px; color:var(--text-muted);">প্রিন্ট করে কালো বলপয়েন্ট কলমে বৃত্ত ভরাট করে ছবি তুললে স্ক্যানার দ্রুত ধরতে পারবে।</p>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <select id="omrCountSelect" onchange="renderOmrSheet()" style="padding:7px 10px; border-radius:8px; border:1px solid var(--border); font-family:inherit; font-weight:600;">
+            <option value="10">১০ প্রশ্ন</option>
+            <option value="20">২০ প্রশ্ন</option>
+            <option value="30" selected>৩০ প্রশ্ন</option>
+          </select>
+          <button class="btn btn-success" onclick="window.print()">🖨️ শিট প্রিন্ট</button>
+          <button class="btn btn-light" onclick="toggleOmrSheet()">বন্ধ করো</button>
+        </div>
+      </div>
+
+      <div class="omr-corners-row" style="margin-top:14px;">
+        <div class="anchor-sq"></div>
+        <div style="font-size:12px; font-weight:700;">R2P OPTICAL ANSWER SHEET</div>
+        <div class="anchor-sq"></div>
+      </div>
+
+      <div class="omr-grid-rows" id="omrBubblesContainer"></div>
+
+      <div class="omr-corners-row">
+        <div class="anchor-sq"></div>
+        <div class="anchor-sq"></div>
+      </div>
+    </section>
 
     <!-- Exam Info -->
     <section class="card">
       <div class="card-title">
         <span>📋 পরীক্ষার তথ্য (Auto-Saved)</span>
-        <span class="tag">Offline Storage Active</span>
+        <span class="tag">100% Offline & Free</span>
       </div>
       <div class="meta-grid">
         <div class="input-group">
@@ -508,7 +605,7 @@
           <span class="tag">Step 1</span>
         </div>
         <div class="upload-box" id="keyUploadBox">
-          <p style="font-size: 13px; color: var(--text-muted);">গাইডের উত্তরমালার ছবি তোলো বা গ্যালারি থেকে নাও</p>
+          <p style="font-size: 13px; color: var(--text-muted);">গাইডের উত্তরমালার ছবি সংরক্ষণের জন্য আপলোড করো</p>
           <div class="upload-actions">
             <label class="btn btn-primary">
               📷 ক্যামেরা
@@ -518,7 +615,6 @@
               🖼️ গ্যালারি
               <input type="file" accept="image/*" hidden onchange="handleImageUpload(event, 'key')">
             </label>
-            <button class="btn btn-light" onclick="rotateImage('key')">↻ ঘোরানো</button>
           </div>
           <div class="preview-wrap" id="keyPreviewWrap">
             <img id="keyPreviewImg" alt="Answer Key Preview">
@@ -543,33 +639,33 @@
         </div>
 
         <div class="input-group" style="margin-top: 10px;">
-          <label>সঠিক উত্তরমালা তালিকা (সরাসরি টাইপ বা এডিটও করতে পারো):</label>
+          <label>সঠিক উত্তরমালা তালিকা:</label>
           <textarea id="keyText" rows="3" placeholder="1. ক, 2. গ, 3. খ, 4. ঘ" oninput="saveAppState(); evaluateAnswers();"></textarea>
         </div>
       </div>
 
-      <!-- Student Sheet Side -->
+      <!-- Student Sheet Bubble Scanner Side -->
       <div class="card">
         <div class="card-title">
-          <span>২. তোমার সলভ করা খাতা (My Sheet)</span>
-          <span class="tag">Step 2</span>
+          <span>২. তোমার সলভ করা খাতা (OMR Scan)</span>
+          <span class="tag">Instant Pixel Scan</span>
         </div>
         <div class="upload-box" id="userUploadBox">
-          <p style="font-size: 13px; color: var(--text-muted);">তোমার খাতার ছবি তোলো বা গ্যালারি থেকে নাও</p>
+          <p style="font-size: 13px; color: var(--text-muted);">ভরাট করা OMR শিটের ছবি দিলে মিলিসেকেন্ডে বৃত্ত স্ক্যান হবে</p>
           <div class="upload-actions">
             <label class="btn btn-primary">
-              📷 ক্যামেরা
-              <input type="file" accept="image/*" capture="environment" hidden onchange="handleImageUpload(event, 'user')">
+              📷 ক্যামেরা স্ক্যান
+              <input type="file" accept="image/*" capture="environment" hidden onchange="handleBubbleScanUpload(event)">
             </label>
             <label class="btn btn-light">
-              🖼️ গ্যালারি
-              <input type="file" accept="image/*" hidden onchange="handleImageUpload(event, 'user')">
+              🖼️ গ্যালারি স্ক্যান
+              <input type="file" accept="image/*" hidden onchange="handleBubbleScanUpload(event)">
             </label>
-            <button class="btn btn-light" onclick="rotateImage('user')">↻ ঘোরানো</button>
           </div>
           <div class="preview-wrap" id="userPreviewWrap">
             <img id="userPreviewImg" alt="Student Sheet Preview">
           </div>
+          <div class="scan-feedback" id="userScanFeedback"></div>
         </div>
 
         <div class="keypad-bar">
@@ -590,7 +686,7 @@
         </div>
 
         <div class="input-group" style="margin-top: 10px;">
-          <label>তোমার দেওয়া উত্তর তালিকা (সরাসরি টাইপ বা এডিটও করতে পারো):</label>
+          <label>তোমার দেওয়া উত্তর তালিকা (স্ক্যানের পর এডিটও করতে পারো):</label>
           <textarea id="userText" rows="3" placeholder="1. খ, 2. গ, 3. খ, 4. ক" oninput="saveAppState(); evaluateAnswers();"></textarea>
         </div>
       </div>
@@ -638,7 +734,7 @@
           <tbody id="resultTableBody">
             <tr>
               <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 24px;">
-                ছবি দিয়ে ফাস্ট কিপ্যাড থেকে উত্তর বসাও অথবা "ডেমো টেস্ট" বাটনে ক্লিক করো।
+                উত্তরমালা ও তোমার উত্তর বসিয়ে "উত্তর যাচাই করো" চাপো অথবা "ডেমো টেস্ট" দেখো।
               </td>
             </tr>
           </tbody>
@@ -647,12 +743,13 @@
     </section>
   </main>
 
+  <canvas id="omrCanvas" style="display:none;"></canvas>
+
   <script>
-    const DB_NAME = 'SSCEvaluatorOfflineDB';
+    const DB_NAME = 'R2POMRScannerDB';
     const STORE_NAME = 'images';
     let db;
     const nextQ = { key: 1, user: 1 };
-    const rotations = { key: 0, user: 0 };
 
     function initDB() {
       return new Promise((resolve, reject) => {
@@ -693,27 +790,131 @@
       tx.objectStore(STORE_NAME).clear();
     }
 
+    function toggleOmrSheet() {
+      const box = document.getElementById('omrSheetSection');
+      const isVisible = box.style.display === 'block';
+      box.style.display = isVisible ? 'none' : 'block';
+      if (!isVisible) renderOmrSheet();
+    }
+
+    function renderOmrSheet() {
+      const count = parseInt(document.getElementById('omrCountSelect').value, 10) || 30;
+      const container = document.getElementById('omrBubblesContainer');
+      const opts = ['ক', 'খ', 'গ', 'ঘ'];
+      let html = '';
+      for (let i = 1; i <= count; i++) {
+        html += `<div class="omr-q-row"><span>${i}.</span><div class="omr-bubbles">`;
+        opts.forEach(o => {
+          html += `<span class="omr-circle">${o}</span>`;
+        });
+        html += `</div></div>`;
+      }
+      container.innerHTML = html;
+    }
+
     function handleImageUpload(event, type) {
       const file = event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (e) => {
         const dataUrl = e.target.result;
-        rotations[type] = 0;
         displayPreview(type, dataUrl);
         saveImageToDB(type + 'Image', dataUrl);
-        saveAppState();
       };
       reader.readAsDataURL(file);
     }
 
-    function rotateImage(type) {
-      rotations[type] = (rotations[type] + 90) % 360;
-      const img = document.getElementById(type + 'PreviewImg');
-      if (img && img.src) {
-        img.style.transform = `rotate(${rotations[type]}deg)`;
-        saveAppState();
-      }
+    // Ultra-fast Canvas Pixel Darkness Bubble Detector (Zero API)
+    function handleBubbleScanUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const t0 = performance.now();
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target.result;
+        displayPreview('user', dataUrl);
+        saveImageToDB('userImage', dataUrl);
+
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.getElementById('omrCanvas');
+          const ctx = canvas.getContext('2d');
+          const w = 600;
+          const h = 800;
+          canvas.width = w;
+          canvas.height = h;
+          ctx.drawImage(img, 0, 0, w, h);
+
+          const totalQs = parseInt(document.getElementById('omrCountSelect').value, 10) || 10;
+          const cols = totalQs > 15 ? 2 : 1;
+          const rowsPerCol = Math.ceil(totalQs / cols);
+          const opts = ['ক', 'খ', 'গ', 'ঘ'];
+
+          const detected = {};
+          let qCounter = 1;
+
+          for (let c = 0; c < cols; c++) {
+            const colStartX = c === 0 ? w * 0.16 : w * 0.58;
+            const optSpacingX = w * 0.068;
+            const startY = h * 0.14;
+            const rowSpacingY = (h * 0.74) / Math.max(rowsPerCol, 1);
+
+            for (let r = 0; r < rowsPerCol && qCounter <= totalQs; r++) {
+              const cy = Math.round(startY + r * rowSpacingY);
+              let darkestOpt = null;
+              let highestDarkness = 0;
+
+              for (let o = 0; o < 4; o++) {
+                const cx = Math.round(colStartX + o * optSpacingX);
+                const radius = 10;
+                const x0 = Math.max(0, cx - radius);
+                const y0 = Math.max(0, cy - radius);
+                const boxW = Math.min(w - x0, radius * 2);
+                const boxH = Math.min(h - y0, radius * 2);
+
+                const frame = ctx.getImageData(x0, y0, boxW, boxH).data;
+                let darkSum = 0;
+                let samples = 0;
+
+                for (let i = 0; i < frame.length; i += 4) {
+                  const gray = (frame[i] + frame[i + 1] + frame[i + 2]) / 3;
+                  if (gray < 135) darkSum += (255 - gray);
+                  samples++;
+                }
+
+                const darknessScore = samples > 0 ? darkSum / samples : 0;
+                if (darknessScore > highestDarkness && darknessScore > 28) {
+                  highestDarkness = darknessScore;
+                  darkestOpt = opts[o];
+                }
+              }
+
+              if (darkestOpt) {
+                detected[qCounter] = darkestOpt;
+              }
+              qCounter++;
+            }
+          }
+
+          const foundCount = Object.keys(detected).length;
+          const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
+          const feedbackEl = document.getElementById('userScanFeedback');
+          feedbackEl.style.display = 'block';
+
+          if (foundCount > 0) {
+            const currentMap = parseAnswers(document.getElementById('userText').value);
+            Object.assign(currentMap, detected);
+            document.getElementById('userText').value = formatMapToText(currentMap);
+            feedbackEl.textContent = `⚡ ${elapsed}s-এ ${foundCount}টি ভরাট বৃত্ত শনাক্ত হয়েছে! নিচে চেক বা এডিট করতে পারো।`;
+            saveAppState();
+            evaluateAnswers();
+          } else {
+            feedbackEl.textContent = `ℹ️ ${elapsed}s স্ক্যান সম্পন্ন। বৃত্ত স্পষ্ট না হলে ফাস্ট কিপ্যাড থেকে এক ট্যাপে বসাও।`;
+          }
+        };
+        img.src = dataUrl;
+      };
+      reader.readAsDataURL(file);
     }
 
     function displayPreview(type, dataUrl) {
@@ -721,7 +922,6 @@
       const wrap = document.getElementById(type + 'PreviewWrap');
       const box = document.getElementById(type + 'UploadBox');
       img.src = dataUrl;
-      img.style.transform = `rotate(${rotations[type]}deg)`;
       wrap.style.display = 'block';
       box.classList.add('has-image');
     }
@@ -780,7 +980,7 @@
     }
 
     function setNextQuestionPrompt(type) {
-      const val = prompt('কোন প্রশ্ন নম্বর থেকে বসাতে চাও? (যেমন: 1, 14, 27)', nextQ[type]);
+      const val = prompt('কোন প্রশ্ন নম্বর থেকে বসাতে চাও? (যেমন: 1, 11, 21)', nextQ[type]);
       const num = parseInt(normalizeDigits(val || ''), 10);
       if (!isNaN(num) && num > 0) {
         nextQ[type] = num;
@@ -876,14 +1076,13 @@
         boardSet: document.getElementById('boardSet').value,
         keyText: document.getElementById('keyText').value,
         userText: document.getElementById('userText').value,
-        nextQ,
-        rotations
+        nextQ
       };
-      localStorage.setItem('r2p_offline_evaluator_state', JSON.stringify(state));
+      localStorage.setItem('r2p_omr_scanner_state', JSON.stringify(state));
     }
 
     async function restoreAppState() {
-      const saved = localStorage.getItem('r2p_offline_evaluator_state');
+      const saved = localStorage.getItem('r2p_omr_scanner_state');
       if (saved) {
         const state = JSON.parse(saved);
         document.getElementById('studentName').value = state.studentName || '';
@@ -894,10 +1093,6 @@
         if (state.nextQ) {
           nextQ.key = state.nextQ.key || 1;
           nextQ.user = state.nextQ.user || 1;
-        }
-        if (state.rotations) {
-          rotations.key = state.rotations.key || 0;
-          rotations.user = state.rotations.user || 0;
         }
       }
 
@@ -929,7 +1124,7 @@
 
     function clearAllData() {
       if (!confirm('সব ছবি ও উত্তর মুছে ফেলতে চাও?')) return;
-      localStorage.removeItem('r2p_offline_evaluator_state');
+      localStorage.removeItem('r2p_omr_scanner_state');
       clearImagesDB();
       location.reload();
     }
@@ -940,4 +1135,4 @@
     });
   </script>
 </body>
-          </html>
+                                                                                                          </html>
